@@ -20,12 +20,12 @@ func main() {
 	ebiten.SetWindowTitle("Hobby's algorithm for aesthetic Bézier splines")
 	game := &Game{
 		points: []bezier.Point{
-			{X: 436, Y: 259},
-			{X: 613, Y: 317},
-			{X: 575, Y: 92},
-			{X: 199, Y: 264},
-			{X: 188, Y: 112},
-			{X: 312, Y: 327},
+			{X: 356, Y: 229},
+			{X: 523, Y: 287},
+			{X: 505, Y: 72},
+			{X: 109, Y: 224},
+			{X: 108, Y: 92},
+			{X: 232, Y: 307},
 		},
 		omega:       0.75,
 		showComb:    true,
@@ -172,7 +172,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	textOp := &text.DrawOptions{}
 	textOp.ColorScale.ScaleWithColor(textColor)
 	// Draw omega value
-	omegaText := fmt.Sprintf("Omega = %.2f", g.omega)
+	omegaText := fmt.Sprintf("w = %.2f", g.omega)
 	omegaTextWidth := textWidth(omegaText, textFont)
 	textOp.GeoM.Translate(float64(sliderX-omegaTextWidth-padding), float64(sliderY-3))
 	text.Draw(screen, omegaText, text.NewGoXFace(textFont), textOp)

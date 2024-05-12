@@ -13,7 +13,7 @@
 	<script src="https://cdn.jsdelivr.net/gh/dealfonso/pdfjs-viewer@1.0.0/pdfjs-viewer.min.js"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dealfonso/pdfjs-viewer@1.1/pdfjs-viewer.min.css">
 
-	<title>Hobby's algorithm for interpolated splines</title>
+	<title>Hobby's algorithm for sexy splines</title>
 	<style>
 		:root {
 			--surface0: light-dark(#ccd0da, #313244);
@@ -45,7 +45,7 @@
 			border-radius: 8px;
 			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 			margin-left: auto;
-			margin-right: 40px;
+			margin-right: 80px;
 			padding: 40px;
 		}
 
@@ -120,14 +120,33 @@
 <body>
 	<div class="pdfjs-viewer"></div>
 	<div class="container">
-		<h1>Hobby's algorithm for interpolated splines</h1>
-		<p>This small interactive demo illustrates how Hobby's algorithm can be used to create aesthetically pleasing
+		<h1>Hobby's algorithm for sexy splines</h1>
+		<p>
+			This small interactive demo illustrates how Hobby's algorithm can be used to create aesthetically attractive
 			<a href="https://www.wikiwand.com/en/B%C3%A9zier_curve">Bézier splines</a>. Adjust the control points to see
 			how the curves update dynamically.
 		</p>
-		<p>The paper to the left describes the algorithm.</p>
-		<p><a href="https://www.jakelow.com/blog/hobby-curves/">This blog post</a> was the inspiration behind this page.
+		<p>
+			A <b>spline</b> is a connected sequence of two or more curves. Naturally, a <b>Bézier spline</b> contains
+			only Bézier curves. These types of curves are often used in vector graphics to smoothly link discrete
+			points. The point where two curves are connected in a spline is called a <b>Knot</b>. Based on the
+			orientation of two curves as they met at a knot, the curvature of the spline can vary drastically, and
+			perhaps, unattractively.
 		</p>
+		<p>
+			Hobby's algorithm is focused on optimizing the orientation of curves at knots such that the curvature is
+			more constant around these inflection points.
+		</p>
+		<p>
+			<b>omega, ω,</b> is an artifact of the parametric equations used in the algorithm and it influences the
+			<i>curl</i> at each knot.
+		</p>
+		<p>
+			<a href="https://www.jakelow.com/blog/hobby-curves/">This blog post</a> was the inspiration behind this
+			demo. It does a great job at explaining the finer points of what's happening and you should check it out if
+			you're interested in more demos.
+		</p>
+		<p>The paper to the left is the original one describing the algorithm.</p>
 		<iframe src="wasm.html" scrolling="no"></iframe>
 	</div>
 	<div class="github-link">
