@@ -130,16 +130,17 @@ var (
 
 	textFont = inconsolata.Regular8x16
 
-	backgroundColor = green
-	toolbarColor    = mauve
-	sliderBgColor   = surface1
-	sliderKnobColor = sky
-	toggleOnColor   = sky
-	toggleOffColor  = maroon
-	textColor       = crust
-	pointColor      = red
-	outlineColor    = sliderBgColor
-	curveColor      = maroon
+	backgroundColor   = green
+	toolbarColor      = mauve
+	sliderBgColor     = surface1
+	sliderKnobColor   = sky
+	toggleOnColor     = sky
+	toggleOffColor    = maroon
+	textColor         = crust
+	pointColor        = red
+	outlineColor      = sliderBgColor
+	curveColor        = maroon
+	naturalCurveColor = overlay2
 
 	padding = sliderKnobDiameter
 )

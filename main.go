@@ -50,34 +50,54 @@ type Game struct {
 
 func (g *Game) Update() error {
 
-	// Handle slider for omega
-	mx, my := ebiten.CursorPosition()
 	// Calculate UI control positions
 	sliderX := (screenWidth - sliderWidth) / 2
 	sliderY := screenHeight - toolbarHeight/2 - sliderHeight/2
 	toggleX := sliderX + sliderWidth + 60 // 60 pixels away from the slider end
 	toggleY := screenHeight - toolbarHeight/2 - toggleDiameter/2
 
+	updateOmega := func(x int) {
+		g.omega = float64(x-sliderX) / float64(sliderWidth)
+		if g.omega < 0 {
+			g.omega = 0
+		} else if g.omega > 1 {
+			g.omega = 1
+		}
+	}
+
+	// Collect current touch states
+	touchIDs := ebiten.AppendTouchIDs(nil)
+	var x, y int
+	var inputJustPressed bool
+	var inputJustReleased bool
+
+	if len(touchIDs) > 0 {
+		// Use touch input
+		x, y = ebiten.TouchPosition(touchIDs[0])
+		inputJustPressed = len(inpututil.AppendJustPressedTouchIDs(touchIDs)) > 0
+		inputJustReleased = inpututil.IsTouchJustReleased(touchIDs[0])
+	} else {
+		// Use mouse input
+		x, y = ebiten.CursorPosition()
+		inputJustPressed = inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
+		inputJustReleased = inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft)
+	}
+
 	// Check mouse interactions with slider knob
 	if g.sliderDragging {
-		if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		if inputJustReleased {
 			g.sliderDragging = false
 		} else {
-			g.omega = float64(mx-sliderX) / float64(sliderWidth)
-			if g.omega < 0 {
-				g.omega = 0
-			} else if g.omega > 1 {
-				g.omega = 1
-			}
+			updateOmega(x)
 		}
-	} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+	} else if inputJustPressed {
 		knobX := sliderX + int(g.omega*float64(sliderWidth))
 		// Check if mouse is within slider knob
-		if mx >= knobX-sliderKnobDiameter/2 && mx <= knobX+sliderKnobDiameter/2 && my >= sliderY && my <= sliderY+sliderHeight {
+		if x >= knobX-sliderKnobDiameter/2 && x <= knobX+sliderKnobDiameter/2 && y >= sliderY && y <= sliderY+sliderHeight {
 			g.sliderDragging = true
 		}
 		// Check if mouse is within toggle
-		if mx >= toggleX-toggleDiameter/2 && mx <= toggleX+toggleDiameter/2 && my >= toggleY && my <= toggleY+toggleDiameter {
+		if x >= toggleX-toggleDiameter/2 && x <= toggleX+toggleDiameter/2 && y >= toggleY && y <= toggleY+toggleDiameter {
 			g.showComb = !g.showComb
 		}
 	}
@@ -120,7 +140,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		if len(naturalPoints) != 0 {
 			for i := 0; i <= (len(naturalPoints)-2)/3; i++ {
 				pts := naturalPoints[i*3 : i*3+4]
-				strokeCurve(screen, &bezier.Bezier{Points: pts}, strokeOp)
+				strokeCurve(screen, &bezier.Bezier{Points: pts}, strokeOp, naturalCurveColor)
 			}
 		}
 	}
@@ -136,7 +156,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if g.showComb {
 				drawComb(screen, curve)
 			}
-			strokeCurve(screen, curve, strokeOp)
+			strokeCurve(screen, curve, strokeOp, curveColor)
 		}
 	}
 
@@ -250,7 +270,7 @@ func interpolateColorComponent(c1, c2 uint32, fraction float64) uint8 {
 	return uint8((float64(c1>>8)*(1-fraction) + float64(c2>>8)*fraction))
 }
 
-func strokeCurve(dst *ebiten.Image, curve *bezier.Bezier, strokeOp *vector.StrokeOptions) {
+func strokeCurve(dst *ebiten.Image, curve *bezier.Bezier, strokeOp *vector.StrokeOptions, color color.Color) {
 	path := &vector.Path{}
 	path.MoveTo(float32(curve.Points[0].X), float32(curve.Points[0].Y))
 	if len(curve.Points) == 3 {
@@ -259,7 +279,7 @@ func strokeCurve(dst *ebiten.Image, curve *bezier.Bezier, strokeOp *vector.Strok
 		path.CubicTo(float32(curve.Points[1].X), float32(curve.Points[1].Y), float32(curve.Points[2].X), float32(curve.Points[2].Y), float32(curve.Points[3].X), float32(curve.Points[3].Y))
 	}
 	vs, is := path.AppendVerticesAndIndicesForStroke(nil, nil, strokeOp)
-	drawVerticesForUtil(dst, vs, is, curveColor, true)
+	drawVerticesForUtil(dst, vs, is, color, true)
 	path.Close()
 }
 
