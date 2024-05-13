@@ -112,18 +112,20 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	// Set background
 	screen.Fill(backgroundColor)
+
+	strokeOp := &vector.StrokeOptions{Width: 1}
 	if g.showNatural {
 		// Calculate natural spline
 		naturalPoints, _ := bezier.NaturalCubicSpline(g.points)
 		if len(naturalPoints) != 0 {
 			for i := 0; i <= (len(naturalPoints)-2)/3; i++ {
 				pts := naturalPoints[i*3 : i*3+4]
-				b := &bezier.Bezier{Points: pts}
-				strokeCurve(screen, b)
+				strokeCurve(screen, &bezier.Bezier{Points: pts}, strokeOp)
 			}
 		}
 	}
 	// Draw bezier curves
+	strokeOp = &vector.StrokeOptions{Width: 5}
 	if len(g.splinePoints) != 0 {
 		for i := 0; i <= (len(g.splinePoints)-2)/3; i++ {
 			pts := g.splinePoints[i*3 : i*3+4]
@@ -134,7 +136,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			if g.showComb {
 				drawComb(screen, curve)
 			}
-			strokeCurve(screen, curve)
+			strokeCurve(screen, curve, strokeOp)
 		}
 	}
 
@@ -248,7 +250,7 @@ func interpolateColorComponent(c1, c2 uint32, fraction float64) uint8 {
 	return uint8((float64(c1>>8)*(1-fraction) + float64(c2>>8)*fraction))
 }
 
-func strokeCurve(dst *ebiten.Image, curve *bezier.Bezier) {
+func strokeCurve(dst *ebiten.Image, curve *bezier.Bezier, strokeOp *vector.StrokeOptions) {
 	path := &vector.Path{}
 	path.MoveTo(float32(curve.Points[0].X), float32(curve.Points[0].Y))
 	if len(curve.Points) == 3 {
@@ -256,7 +258,6 @@ func strokeCurve(dst *ebiten.Image, curve *bezier.Bezier) {
 	} else if len(curve.Points) == 4 {
 		path.CubicTo(float32(curve.Points[1].X), float32(curve.Points[1].Y), float32(curve.Points[2].X), float32(curve.Points[2].Y), float32(curve.Points[3].X), float32(curve.Points[3].Y))
 	}
-	strokeOp := &vector.StrokeOptions{Width: 5}
 	vs, is := path.AppendVerticesAndIndicesForStroke(nil, nil, strokeOp)
 	drawVerticesForUtil(dst, vs, is, curveColor, true)
 	path.Close()
