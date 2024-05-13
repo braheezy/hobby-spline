@@ -118,8 +118,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		if len(naturalPoints) != 0 {
 			for i := 0; i <= (len(naturalPoints)-2)/3; i++ {
 				pts := naturalPoints[i*3 : i*3+4]
-				naturalSpline, _ := bezier.NewBezier(false, pts...)
-				strokeCurve(screen, naturalSpline)
+				b := &bezier.Bezier{Points: pts}
+				strokeCurve(screen, b)
 			}
 		}
 	}
