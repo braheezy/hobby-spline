@@ -50,12 +50,6 @@ type Game struct {
 
 func (g *Game) Update() error {
 
-	// Calculate UI control positions
-	sliderX := (screenWidth - sliderWidth) / 2
-	sliderY := screenHeight - toolbarHeight/2 - sliderHeight/2
-	toggleX := sliderX + sliderWidth + 60 // 60 pixels away from the slider end
-	toggleY := screenHeight - toolbarHeight/2 - toggleDiameter/2
-
 	updateOmega := func(x int) {
 		g.omega = float64(x-sliderX) / float64(sliderWidth)
 		if g.omega < 0 {
@@ -95,10 +89,13 @@ func (g *Game) Update() error {
 		// Check if mouse is within slider knob
 		if x >= knobX-sliderKnobDiameter/2 && x <= knobX+sliderKnobDiameter/2 && y >= sliderY && y <= sliderY+sliderHeight {
 			g.sliderDragging = true
-		}
-		// Check if mouse is within toggle
-		if x >= toggleX-toggleDiameter/2 && x <= toggleX+toggleDiameter/2 && y >= toggleY && y <= toggleY+toggleDiameter {
+		} else if x >= combToggleX-toggleRadius && x <= combToggleX+toggleRadius && y >= combToggleY-toggleRadius && y <= combToggleY-toggleRadius+toggleDiameter {
+			// Check if mouse is within comb toggle
 			g.showComb = !g.showComb
+		}
+		// Check if mouse is within natural toggle
+		if x >= naturalToggleX-toggleRadius && x <= naturalToggleX+toggleRadius && y >= naturalToggleY-toggleRadius && y <= naturalToggleY-toggleRadius+toggleDiameter {
+			g.showNatural = !g.showNatural
 		}
 	}
 
@@ -169,12 +166,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Draw the toolbar
 	vector.DrawFilledRect(screen, 0, float32(screenHeight-toolbarHeight), float32(screenWidth), float32(toolbarHeight), toolbarColor, true)
 
-	// Calculate positions
-	sliderX := (screenWidth - sliderWidth) / 2
-	toggleX := sliderX + sliderWidth + 60
-	sliderY := screenHeight - toolbarHeight/2 - sliderHeight/2
-	toggleY := screenHeight - toolbarHeight/2
-
 	// Draw slider background
 	vector.DrawFilledRect(screen, float32(sliderX), float32(sliderY), float32(sliderWidth), float32(sliderHeight), sliderBgColor, true)
 
@@ -183,13 +174,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	vector.DrawFilledCircle(screen, float32(knobX), float32(screenHeight-toolbarHeight/2), float32(sliderKnobDiameter/2), sliderKnobColor, true)
 	vector.StrokeCircle(screen, float32(knobX), float32(screenHeight-toolbarHeight/2), float32(sliderKnobDiameter/2), 1, outlineColor, true)
 
-	// Draw toggle
+	// Draw comb toggle
 	toggleColor := toggleOnColor
 	if !g.showComb {
 		toggleColor = toggleOffColor
 	}
-	vector.DrawFilledCircle(screen, float32(toggleX), float32(toggleY), float32(sliderHeight), toggleColor, true)
-	vector.StrokeCircle(screen, float32(toggleX), float32(toggleY), float32(sliderHeight), 1, outlineColor, true)
+	vector.DrawFilledCircle(screen, float32(combToggleX), float32(combToggleY), float32(sliderHeight), toggleColor, true)
+	vector.StrokeCircle(screen, float32(combToggleX), float32(combToggleY), float32(sliderHeight), 1, outlineColor, true)
+
+	// Draw natural toggle
+	toggleColor = toggleOnColor
+	if !g.showNatural {
+		toggleColor = toggleOffColor
+	}
+	vector.DrawFilledCircle(screen, float32(naturalToggleX), float32(naturalToggleY), float32(sliderHeight), toggleColor, true)
+	vector.StrokeCircle(screen, float32(naturalToggleX), float32(naturalToggleY), float32(sliderHeight), 1, outlineColor, true)
 
 	textOp := &text.DrawOptions{}
 	textOp.ColorScale.ScaleWithColor(textColor)
@@ -202,8 +201,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Draw "Show Comb" label next to toggle
 	textOp = &text.DrawOptions{}
 	textOp.ColorScale.ScaleWithColor(textColor)
-	textOp.GeoM.Translate(float64(toggleX+toggleDiameter), float64(toggleY-sliderHeight/2-3))
+	textOp.GeoM.Translate(float64(combToggleX+toggleDiameter), float64(combToggleY-sliderHeight/2-3))
 	text.Draw(screen, "Show Comb", text.NewGoXFace(textFont), textOp)
+
+	// Draw "Show Natural" label next to toggle
+	textOp = &text.DrawOptions{}
+	textOp.ColorScale.ScaleWithColor(textColor)
+	textOp.GeoM.Translate(float64(naturalToggleX+toggleDiameter), float64(naturalToggleY-sliderHeight/2-3))
+	text.Draw(screen, "Show Natural", text.NewGoXFace(textFont), textOp)
 
 }
 
@@ -283,7 +288,7 @@ func strokeCurve(dst *ebiten.Image, curve *bezier.Bezier, strokeOp *vector.Strok
 	path.Close()
 }
 
-const PIXELS_PER_COMB_TOOTH = 8
+const PIXELS_PER_COMB_TOOTH = 5
 
 func drawComb(dst *ebiten.Image, curve *bezier.Bezier) {
 	length := curve.Length()
@@ -298,7 +303,7 @@ func drawComb(dst *ebiten.Image, curve *bezier.Bezier) {
 		p2 := bezier.Point{X: p.X + n.X*kr.K*-1500, Y: p.Y + n.Y*kr.K*-1500}
 		combColor := colors[int(i)]
 		// combColor := red
-		vector.StrokeLine(dst, float32(p.X), float32(p.Y), float32(p2.X), float32(p2.Y), 2, combColor, true)
+		vector.StrokeLine(dst, float32(p.X), float32(p.Y), float32(p2.X), float32(p2.Y), 1, combColor, true)
 	}
 }
 

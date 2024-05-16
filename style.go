@@ -16,6 +16,14 @@ const (
 	sliderKnobDiameter = 20
 	toggleDiameter     = 20
 	pointDiameter      = 10
+
+	sliderX        = (screenWidth - sliderWidth) / 4
+	sliderY        = screenHeight - toolbarHeight/2 - sliderHeight/2
+	combToggleX    = sliderX + sliderWidth + 60
+	combToggleY    = screenHeight - toolbarHeight/2
+	naturalToggleX = combToggleX + toggleDiameter + 120
+	naturalToggleY = combToggleY
+	toggleRadius   = toggleDiameter / 2
 )
 
 var (
@@ -130,16 +138,16 @@ var (
 
 	textFont = inconsolata.Regular8x16
 
-	backgroundColor   = green
+	backgroundColor   = overlay0
 	toolbarColor      = mauve
 	sliderBgColor     = surface1
 	sliderKnobColor   = sky
 	toggleOnColor     = sky
 	toggleOffColor    = maroon
 	textColor         = crust
-	pointColor        = red
+	pointColor        = sky
 	outlineColor      = sliderBgColor
-	curveColor        = maroon
+	curveColor        = toolbarColor
 	naturalCurveColor = overlay2
 
 	padding = sliderKnobDiameter
